@@ -1,19 +1,32 @@
+// Déclaration des variables en haut du script
 var target = Argument("target", "Build");
 
 var workflow = BuildSystem.GitHubActions.Environment.Workflow;
+var buildId = workflow.RunNumber;
+var tag = workflow.RefType == GitHubActionsRefType.Tag ? workflow.RefName.Substring(1) : null;
 
-Task("Build").Does(() =>
+Task("Build")
+    .Does(() =>
 {
     var settings = new DotNetBuildSettings
     {
         Configuration = "Release",
         MSBuildSettings = new DotNetMSBuildSettings()
-        {
-            VersionSuffix = "ci." + workflow.RunNumber
-        }
+
+
+
     };
 
-    DotNetBuild(".", settings);
+    if (tag != null) 
+    {
+        settings.MSBuildSettings.Version = tag;
+    }
+    else if (buildId != 0)
+    {
+        settings.MSBuildSettings.VersionSuffix = "ci." + buildId;
+    }
+
+    DotNetBuild("./LevelImposter.csproj", settings);
 });
 
 RunTarget(target);
