@@ -23,4 +23,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: LevelImposter.dll
-          path: LevelImposter/bin/Release/net6.0/LevelImposter.dll
+          path: LevelImposteur/bin/Release/net6.0/LevelImposter.dll
