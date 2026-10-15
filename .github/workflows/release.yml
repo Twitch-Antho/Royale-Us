@@ -66,8 +66,7 @@ jobs:
           cp Config/*.cfg "$OUT/BepInEx/config/"
 
           (cd pkg && zip -qr "../Royale.Us.zip" "Royale Us")
-          find pkg -maxdepth 4 | head -40
-          ls -la Royale.Us.zip
+          ls -la Royale.Us.zip "pkg/Royale Us/BepInEx/plugins" "pkg/Royale Us/BepInEx/patchers" || true
 
       - name: Garder le .zip (test)
         if: ${{ !inputs.publier }}
