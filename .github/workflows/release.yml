@@ -81,5 +81,8 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.tag }}
           name: Royale Us ${{ github.event.inputs.tag }}
-          body_path: RELEASE_NOTES.md
+          body: |
+            ## Royale Us (Polus) ${{ github.event.inputs.tag }}
+
+            Extraire le contenu du dossier `Royale Us` dans le dossier d'Among Us (supprimer d'abord l'ancien dossier `BepInEx` s'il existe), puis lancer le jeu.
           files: Royale.Us.zip
