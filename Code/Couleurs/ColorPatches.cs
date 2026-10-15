@@ -12,11 +12,8 @@ internal static class ColorPatches
     {
         private const int Columns = 7;
 
-        public static PlayerTab Current;
-
         public static void Postfix(PlayerTab __instance)
         {
-            Current = __instance;
             var chips = __instance.ColorChips;
             for (var i = 0; i < chips.Count; i++)
             {
