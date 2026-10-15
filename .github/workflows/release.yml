@@ -1,7 +1,7 @@
 name: Release
 
 # Assemble le .zip du mod : BepInEx + Reactor + LevelImposter + Mini.RegionInstall
-# + la map (Map/) + les réglages (Config/), puis publie la release.
+# + le mod Couleurs (Code/Couleurs) + la map (Map/) + les réglages (Config/), puis publie la release.
 
 on:
   workflow_dispatch:
@@ -32,6 +32,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Compiler le mod Couleurs
+        run: dotnet build Code/Couleurs/RoyaleUs.Couleurs.csproj -c Release
+
       - name: Assembler le mod
         shell: bash
         run: |
@@ -60,6 +68,9 @@ jobs:
           else
             echo "::warning::Écran de chargement BepInEx.SplashScreen non trouvé, ignoré"
           fi
+
+          # Mod Couleurs (Code/Couleurs)
+          cp Code/Couleurs/bin/Release/net6.0/RoyaleUs.Couleurs.dll "$OUT/BepInEx/plugins/"
 
           # Map et réglages
           cp Map/*.lim2 "$OUT/BepInEx/plugins/LevelImposter/"

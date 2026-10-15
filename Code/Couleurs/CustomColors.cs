@@ -47,17 +47,24 @@ public static class CustomColors
         var names = Palette.ColorNames.ToList();
         var main = Palette.PlayerColors.ToList();
         var shadow = Palette.ShadowColors.ToList();
+        var text = Palette.TextColors.ToList();
+        var outline = Palette.TextOutlineColors.ToList();
 
         foreach (var color in Colors)
         {
             names.Add(CustomStringName.CreateAndRegister(color.Name));
             main.Add(color.Main);
             shadow.Add(color.Shadow);
+            text.Add(color.Main);
+            // Contour noir pour les couleurs claires, blanc pour les foncées
+            outline.Add(color.Main.r + color.Main.g + color.Main.b > 450 ? Color.black : Color.white);
         }
 
         Palette.ColorNames = names.ToArray();
         Palette.PlayerColors = main.ToArray();
         Palette.ShadowColors = shadow.ToArray();
+        Palette.TextColors = text.ToArray();
+        Palette.TextOutlineColors = outline.ToArray();
 
         RainbowId = VanillaCount + Colors.Count - 1;
     }

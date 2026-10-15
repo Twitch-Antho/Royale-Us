@@ -2,7 +2,7 @@ name: Build mod
 
 on:
   push:
-    paths: ["Code/Couleurs/**", ".github/workflows/build.yml", ".ci-inspect"]
+    paths: ["Code/Couleurs/**", ".github/workflows/build.yml"]
   pull_request:
   workflow_dispatch:
 
@@ -27,30 +27,6 @@ jobs:
         run: |
           set -o pipefail
           dotnet restore Code/Couleurs/RoyaleUs.Couleurs.csproj 2>&1 | tee restore.log || { grep -E "error|NU1" restore.log | head -30 | sed 's/^/::error::/'; exit 1; }
-
-      - name: Inspecter l'API du jeu
-        if: hashFiles('.ci-inspect') != ''
-        continue-on-error: true
-        shell: bash
-        run: |
-          pip install -q dnfile
-          DLL=$(find ~/.nuget/packages/amongus.gamelibs.steam -name Assembly-CSharp.dll | head -1)
-          cat > /tmp/insp.py <<'PY'
-          import sys, re, dnfile
-          pe = dnfile.dnPE(sys.argv[1]); md = pe.net.mdtables
-          for spec in open('.ci-inspect').read().split(','):
-              spec = spec.strip()
-              if not spec: continue
-              name, _, flt = spec.partition(':')
-              for t in md.TypeDef.rows:
-                  if str(t.TypeName) != name: continue
-                  f = [str(x.row.Name) for x in t.FieldList]
-                  m = sorted(set(str(x.row.Name) for x in t.MethodList))
-                  if flt:
-                      f = [x for x in f if re.search(flt, x, re.I)]; m = [x for x in m if re.search(flt, x, re.I)]
-                  print(f"{name} | fields: {', '.join(f)} | methods: {', '.join(m)}")
-          PY
-          while read -r line; do echo "::notice title=API::$line"; done < <(python3 /tmp/insp.py "$DLL")
 
       - name: Build (Release)
         shell: bash

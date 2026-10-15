@@ -30,6 +30,13 @@ public class RainbowUpdater : MonoBehaviour
         Palette.PlayerColors[id] = Color.HSVToRGB(hue, 0.8f, 0.9f);
         Palette.ShadowColors[id] = Color.HSVToRGB(hue, 0.8f, 0.55f);
 
+        Palette.TextColors[id] = Palette.PlayerColors[id];
+
+        // Pastille animée dans l'onglet des couleurs
+        var tab = ColorPatches.PlayerTab_OnEnable.Current;
+        if (tab && tab.isActiveAndEnabled && id < tab.ColorChips.Count && tab.ColorChips[id] && tab.ColorChips[id].Inner)
+            tab.ColorChips[id].Inner.color = Palette.PlayerColors[id];
+
         foreach (var player in PlayerControl.AllPlayerControls)
         {
             if (!player || player.Data == null || player.Data.DefaultOutfit == null) continue;
