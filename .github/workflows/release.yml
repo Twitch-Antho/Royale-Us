@@ -1,0 +1,85 @@
+name: Release
+
+# Assemble le .zip du mod : BepInEx + Reactor + LevelImposter + Mini.RegionInstall
+# + la map (Map/) + les réglages (Config/), puis publie la release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Numéro de version (ex : 0.9)"
+        required: true
+      publier:
+        description: "Publier la release (décocher pour seulement tester l'assemblage)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+env:
+  BEPINEX_BUILD: "753"          # BepInEx 6 IL2CPP be.753 (x86 = Steam / Itch / Epic 32 bits)
+  REACTOR_VERSION: "2.5.1"
+  LEVELIMPOSTER_VERSION: "v1.0.2"
+  REGIONINSTALL_VERSION: "v1.2.0"
+  SPLASHSCREEN_VERSION: "v2.2.1"
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assembler le mod
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="pkg/Royale Us"
+          mkdir -p "$OUT"
+
+          # BepInEx
+          curl -fsSL -o page.html https://builds.bepinex.dev/projects/bepinex_be
+          NAME=$(grep -o "BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.$BEPINEX_BUILD+[^\"']*.zip" page.html | head -1)
+          curl -fsSL -o bepinex.zip "https://builds.bepinex.dev/projects/bepinex_be/$BEPINEX_BUILD/$NAME"
+          unzip -q bepinex.zip -d "$OUT"
+          mkdir -p "$OUT/BepInEx/plugins/LevelImposter" "$OUT/BepInEx/config"
+
+          # Plugins
+          gh release download "$REACTOR_VERSION" -R NuclearPowered/Reactor -p "Reactor.dll" -D "$OUT/BepInEx/plugins"
+          gh release download "$LEVELIMPOSTER_VERSION" -R DigiWorm0/LevelImposter -p "LevelImposter.dll" -D "$OUT/BepInEx/plugins"
+          gh release download "$REGIONINSTALL_VERSION" -R miniduikboot/Mini.RegionInstall -p "*.dll" -D "$OUT/BepInEx/plugins"
+
+          # Écran de chargement (optionnel)
+          mkdir -p splash
+          if gh release download "$SPLASHSCREEN_VERSION" -R BepInEx/BepInEx.SplashScreen -p "*BepInEx6*.zip" -D splash; then
+            unzip -q -o splash/*.zip -d splash/x
+            cp -r splash/x/BepInEx/* "$OUT/BepInEx/" 2>/dev/null || cp -r splash/x/* "$OUT/BepInEx/"
+          else
+            echo "::warning::Écran de chargement BepInEx.SplashScreen non trouvé, ignoré"
+          fi
+
+          # Map et réglages
+          cp Map/*.lim2 "$OUT/BepInEx/plugins/LevelImposter/"
+          cp Config/*.cfg "$OUT/BepInEx/config/"
+
+          (cd pkg && zip -qr "../Royale.Us.zip" "Royale Us")
+          find pkg -maxdepth 4 | head -40
+          ls -la Royale.Us.zip
+
+      - name: Garder le .zip (test)
+        if: ${{ !inputs.publier }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Royale.Us
+          path: Royale.Us.zip
+
+      - name: Publier la release
+        if: ${{ inputs.publier }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: Royale Us ${{ github.event.inputs.tag }}
+          body_path: RELEASE_NOTES.md
+          files: Royale.Us.zip

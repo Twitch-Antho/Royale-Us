@@ -40,6 +40,19 @@ Normalement vous devriez avoir ça comme écran d'affichage sur la map :
 
 
 
+# Organisation du dépôt
+
+Le dépôt suit le contenu du .zip du mod :
+
+| Dossier | Contenu | Dans le .zip |
+|---|---|---|
+| `Map/` | La map **Royale Polus** (`.lim2`, fichier LevelImposter) | `BepInEx/plugins/LevelImposter/` |
+| `Config/` | Réglages livrés avec le mod (BepInEx, Reactor, serveurs moddés, écran de chargement) | `BepInEx/config/` |
+| `Images/` | Images des objets et personnages de la map | intégrées dans la map |
+| `Code/` | Code des futurs modules (couleurs, costumes…), en préparation | pas encore |
+
+BepInEx, Reactor, LevelImposter et Mini.RegionInstall ne sont pas stockés ici : le workflow **Release** (onglet Actions) les télécharge et assemble `Royale.Us.zip` automatiquement.
+
 # TUTO
 - 1 Téléchargez la version ZIP correcte en fonction de votre version de Among Us.
 
