@@ -36,6 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          trap 'echo "::error::Échec : $BASH_COMMAND"' ERR
           OUT="pkg/Royale Us"
           mkdir -p "$OUT"
 
