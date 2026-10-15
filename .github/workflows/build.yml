@@ -1,0 +1,66 @@
+name: Build mod
+
+on:
+  push:
+    paths: ["Code/Couleurs/**", ".github/workflows/build.yml", ".ci-inspect"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet restore Code/Couleurs/RoyaleUs.Couleurs.csproj 2>&1 | tee restore.log || { grep -E "error|NU1" restore.log | head -30 | sed 's/^/::error::/'; exit 1; }
+
+      - name: Inspecter l'API du jeu
+        if: hashFiles('.ci-inspect') != ''
+        continue-on-error: true
+        shell: bash
+        run: |
+          pip install -q dnfile
+          DLL=$(find ~/.nuget/packages/amongus.gamelibs.steam -name Assembly-CSharp.dll | head -1)
+          cat > /tmp/insp.py <<'PY'
+          import sys, re, dnfile
+          pe = dnfile.dnPE(sys.argv[1]); md = pe.net.mdtables
+          for spec in open('.ci-inspect').read().split(','):
+              spec = spec.strip()
+              if not spec: continue
+              name, _, flt = spec.partition(':')
+              for t in md.TypeDef.rows:
+                  if str(t.TypeName) != name: continue
+                  f = [str(x.row.Name) for x in t.FieldList]
+                  m = sorted(set(str(x.row.Name) for x in t.MethodList))
+                  if flt:
+                      f = [x for x in f if re.search(flt, x, re.I)]; m = [x for x in m if re.search(flt, x, re.I)]
+                  print(f"{name} | fields: {', '.join(f)} | methods: {', '.join(m)}")
+          PY
+          while read -r line; do echo "::notice title=API::$line"; done < <(python3 /tmp/insp.py "$DLL")
+
+      - name: Build (Release)
+        shell: bash
+        run: |
+          set -o pipefail
+          echo "::remove-matcher owner=csc::"; echo "::remove-matcher owner=msbuild::"
+          dotnet build Code/Couleurs/RoyaleUs.Couleurs.csproj -c Release --no-restore 2>&1 | tee build.log || { msg=$(grep -E ": error " build.log | sed -E 's#^.*/Royale-Us/##; s# \[.*\]$##' | sort -u | head -300 | awk '{printf "%s%%0A", $0}'); echo "::error title=Erreurs de compilation::$msg"; exit 1; }
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: RoyaleUs.Couleurs
+          path: Code/Couleurs/bin/Release/net6.0/RoyaleUs.Couleurs.dll
