@@ -33,7 +33,7 @@ jobs:
         run: |
           set -o pipefail
           echo "::remove-matcher owner=csc::"; echo "::remove-matcher owner=msbuild::"
-          dotnet build Code/Couleurs/RoyaleUs.Couleurs.csproj -c Release --no-restore 2>&1 | tee build.log || { msg=$(grep -E ": error " build.log | sed -E 's#^.*/Royale-Us/##; s# \[.*\]$##' | sort -u | head -300 | awk '{printf "%s%%0A", $0}'); echo "::error title=Erreurs de compilation::$msg"; exit 1; }
+          dotnet build Code/Couleurs/RoyaleUs.Couleurs.csproj -c Release --no-restore 2>&1 | tee build.log || { msg=$(grep -E ": error " build.log | sed -E 's#^/home/runner/work/[^/]+/[^/]+/##; s# \[[^]]*\]$##' | sort -u | head -300 | awk '{printf "%s%%0A", $0}'); echo "::error title=Erreurs de compilation::$msg"; exit 1; }
 
       - name: Upload DLL
         uses: actions/upload-artifact@v4
