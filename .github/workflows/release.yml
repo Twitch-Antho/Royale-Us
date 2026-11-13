@@ -18,11 +18,11 @@ permissions:
   contents: write
 
 env:
-  BEPINEX_BUILD: "753"          # BepInEx 6 IL2CPP be.753 (x86 = Steam / Itch / Epic 32 bits)
+  BEPINEX_BUILD: "793"          # BepInEx 6 IL2CPP be.793 (x86 = Steam / Itch / Epic 32 bits)
   REACTOR_VERSION: "2.5.1"
   LEVELIMPOSTER_VERSION: "v1.0.2"
   REGIONINSTALL_VERSION: "v1.2.0"
-  SPLASHSCREEN_VERSION: "v2.2.1"
+  SPLASHSCREEN_VERSION: "v3.0"
   GH_TOKEN: ${{ github.token }}
 
 jobs:

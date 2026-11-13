@@ -10,7 +10,7 @@ Code C# des modules de Royale Us.
 
 ## Couleurs
 
-Basé sur le mod [Rainbow](https://github.com/MoltenMods/Rainbow) de MoltenMods (GPLv2), avec des couleurs inspirées de [Extra Colors](https://github.com/MengTube/Extra-Colors-Mod) de MengTube, mis à jour pour Among Us 2026.9.29 (BepInEx be.735, Reactor 2.5.1).
+Basé sur le mod [Rainbow](https://github.com/MoltenMods/Rainbow) de MoltenMods (GPLv2), avec des couleurs inspirées de [Extra Colors](https://github.com/MengTube/Extra-Colors-Mod) de MengTube, mis à jour pour Among Us 2026.9.29 (BepInEx be.793, Reactor 2.5.1).
 
 Tous les joueurs de la partie doivent avoir le mod, sinon ils verront une couleur différente.
 
